@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>クリニック検索</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>クリニック検索</h1>
+  <label for="clinic">クリニック名:</label>
+  <input type="text" id="clinic" placeholder="例: 〇〇クリニック">
+  <button onclick="searchClinic()">検索</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function searchClinic() {
+      const clinic = document.getElementById('clinic').value.trim();
+      if (!clinic) {
+        alert('クリニック名を入力してください。');
+        return;
+      }
+
+      const apiUrl = 'https://script.google.com/macros/s/AKfycbwVXqvVJIe-1CH_tzAcGu97lO0_QKyoBFJ4a8VHPJ_gy247ll-4yhDaVnJfSFO3heUe/exec?clinic=' + encodeURIComponent(clinic);
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.length === 0) {
+          document.getElementById('result').innerHTML = `<p>該当するデータがありません。</p>`;
+          return;
+        }
+
+        // 表を作成
+        let html = '<table><tr>';
+        const keys = Object.keys(data[0]);
+        keys.forEach(key => {
+          html += `<th>${key}</th>`;
+        });
+        html += '</tr>';
+
+        data.forEach(row => {
+          html += '<tr>';
+          keys.forEach(key => {
+            html += `<td>${row[key]}</td>`;
+          });
+          html += '</tr>';
+        });
+        html += '</table>';
+
+        document.getElementById('result').innerHTML = html;
+
+      } catch (error) {
+        console.error('取得エラー:', error);
+        document.getElementById('result').innerHTML = `<p>データの取得に失敗しました。</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
+
